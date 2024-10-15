@@ -4,78 +4,84 @@ from math import pi,sqrt
 class Figure: #фигура
     sides_count = 0 # кол-во сторон
 
-    def __init__(self,color,*sides):
+    def __init__(self,color:tuple,*sides,filled:bool = True):
          self._sides = sides # список сторон инициализируем
          self._color = color # список цветов
-         self.filled = False # флаг, указывает закрашена или нет фигура
+         self.filled = filled # флаг, указывает закрашена или нет фигура
 
         # Проверка на кол-во сторон
-         if len(sides) == self.sides_count:
-             self.set_sides(*sides)
+         if len(sides) != self.sides_count:
+             self._sides = [1*self.sides_count]
          else:
-             self._sides = [1] * self.sides_count #заполнение еденицами если кол-во сторон не совпадвает
+             self._sides = [i for i in sides]
 
     def get_color(self):
-        return self._color # вернет список цветов
+        return [i for  i in self._color] # вернет список цветов
 
     def __len__(self):
         return sum(self._sides)# возвращает периметр фигуры
 
     def get_sides(self):
-        return self._sides# возвращает список сторон
+        return [*self._sides]# возвращает список сторон
 
     def __is_valid_color(self,r,g,b):
         # принимает параметры r,g,b проверяет корректность пкркданных значений
         # перед установкой нового цвета - корректность - это целые числа от 0 до 255 включительно
-         if isinstance(r,int) and isinstance(g,int) and isinstance(b,int):
-            if 0 <= r <= 255 and 0 <= g <= 255 and 0 <= b <= 255:
-              return r,g,b
-            else:
-                return self._color # цвет не корректный
+         lst = [r,g,b]
+         lst.sort()
+         if lst[0] <0 or lst[-1] >255:
+              return False
+         else:
+             return True # цвет не корректный
+
 
     def set_color(self,r,g,b):
         # принимает параметры r,g,b проверяет на коректность и меняет атрибут color
         # на другой если введены коректные данные, если нет цвет остаётся прежний
-        new_color = self.__is_valid_color(r,g,b)
-        self._color = list(new_color)
-        return self._color
+        if self.__is_valid_color(r,g,b):
+           self._color = (r,g,b)
 
-    def __is_valid_sides(self,*new_sides):
+    def __is_valid_sides(self,sides):
         # принимает неграниченое кол-во сторон возвращает True если все стороны целые
         # положительные числа ,и совподает с текущим кол-вом сторон иначе False
-       for i in new_sides:
-            if i > 0 and len(new_sides) == self.sides_count:
+       valid =[]
+       for i in sides:
+            if i > 0:
+                valid.append(i)
+                if len(valid) > 0 and len(sides) == len(self._sides):
                     return True
             else:
-               return False
+                    return False
 
-    def set_sides(self,*new_sides):# принимает новые  стороны  и если их кол-во не равно==0
+    def set_sides(self,*sides):# принимает новые  стороны  и если их кол-во не равно==0
         # то не изменять, иначе менять
-        if self.__is_valid_sides(*new_sides):
-           self._sides = list(new_sides)
+        if self.__is_valid_sides(sides):
+           self._sides = sides
 
 class Circle (Figure):
     sides_count = 1
 
-    def __init__(self,color,circumferense):
-        super().__init__(color,circumferense)
-        self._radius = circumferense/(2 * pi)
+    def __radius(self):
+        return self.__len__ * (2/pi)
 
-    def get_square(self):
-        x = (self._radius ** 2)* pi
-        return x
+    # def get_square(self):
+    #     x = (self._radius ** 2)* math.pi
+    #     return x
 
 class Cube(Figure):
     sides_count = 12
-    
-    def __init__(self,color,*sides):
-        super().__init__(color,*sides)
-        self._sides = [sides[0]] * self.sides_count
-        print(self._sides)
 
+    def __init__(self,color,*sides:int,filled:bool = True):
+        super().__init__(color,*sides,filled)
+        if len(sides) == 1:
+          self._sides = self.sides_count *[i for i in sides]
+        else:
+          self._sides = [1*self.sides_count]
+
+    def get_sides(self):
+        return [*self._sides]
     def get_volume(self):
-        v = self._sides[0] ** 3
-        return v
+        return self._sides[1]**3
 
 
 class Triangle(Figure):
@@ -112,7 +118,7 @@ print(len(circle1))
 print(cube1.get_volume())
 
  # площадь
-print(circle1.get_square())
+#print(circle1.get_square())
 
 
 
